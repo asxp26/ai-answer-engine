@@ -7,19 +7,11 @@ import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   try {
-
     const response = NextResponse.next();
 
     return response;
-
-
-
-  } catch (error) {
-
-
-  }
+  } catch (error) {}
 }
-
 
 // Configure which paths the middleware runs on
 export const config = {
