@@ -5,6 +5,7 @@
 // Refer to Puppeteer docs here: https://pptr.dev/guides/what-is-puppeteer
 
 import { NextResponse } from "next/server";
+import { getGroqResponse } from "@/app/utils/groqClient";
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +13,9 @@ export async function POST(req: Request) {
 
     console.log("message received:", message); // shown in ide terminal bc server side
 
-    return NextResponse.json({ message: message });
+    const response = await getGroqResponse(message);
+
+    return NextResponse.json({ message: response });
   } catch (error) {
     return NextResponse.json({ message: "Error" });
   }
