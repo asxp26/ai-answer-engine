@@ -33,6 +33,11 @@ export default function Home() {
       });
 
       // TODO: Handle the response from the chat API to display the AI response in the UI
+
+      const data = await response.json();
+      console.log("data:", data); // shown in browser console bc client side
+
+      setMessages(prev => [...prev, { role: "ai", content: data.message }]);
     } catch (error) {
       console.error("Error:", error);
     } finally {
