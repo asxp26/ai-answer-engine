@@ -6,12 +6,40 @@
 
 import { NextResponse } from "next/server";
 import { getGroqResponse } from "@/app/utils/groqClient";
+import { scrapeUrl, urlPattern } from "@/app/utils/scraper";
 
 export async function POST(req: Request) {
   try {
     const { message } = await req.json();
 
     console.log("message received:", message); // shown in ide terminal bc server side
+
+    const url = message.match(urlPattern);
+
+    let scrappedContent = "";
+
+    if (url) {
+      console.log("URL Found", url);
+      const scrapperResponse = await scrapeUrl(url);
+      console.log("Scrapped Content", scrappedContent);
+      scrappedContent = scrapperResponse.content;
+    }
+
+    // Extract the user's query by removing the URL is present
+    const userQuery = message.replace(url ? url[0] : "", "").trim();
+
+    const prompt = `
+
+    Answer my question: "${userQuery}"
+
+    Based on the following content:
+    <content>
+      ${scrappedContent}
+    </content>
+
+    `;
+
+    console.log("PROMPT", prompt);
 
     const response = await getGroqResponse(message);
 
