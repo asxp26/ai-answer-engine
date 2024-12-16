@@ -10,9 +10,10 @@ import { scrapeUrl, urlPattern } from "@/app/utils/scraper";
 
 export async function POST(req: Request) {
   try {
-    const { message } = await req.json();
+    const { message, messages } = await req.json();
 
     console.log("message received:", message); // shown in ide terminal bc server side
+    console.log("messages", messages);
 
     const url = message.match(urlPattern);
 
@@ -22,13 +23,15 @@ export async function POST(req: Request) {
       console.log("URL Found", url);
       const scrapperResponse = await scrapeUrl(url);
       console.log("Scrapped Content", scrappedContent);
-      scrappedContent = scrapperResponse.content;
+      if (scrapperResponse) {
+        scrappedContent = scrapperResponse.content;
+      }
     }
 
     // Extract the user's query by removing the URL is present
     const userQuery = message.replace(url ? url[0] : "", "").trim();
 
-    const prompt = `
+    const userPrompt = `
 
     Answer my question: "${userQuery}"
 
@@ -39,9 +42,15 @@ export async function POST(req: Request) {
 
     `;
 
-    console.log("PROMPT", prompt);
+    const llmMessages = [
+      ...messages,
+      {
+        role: "user",
+        content: userPrompt,
+      },
+    ];
 
-    const response = await getGroqResponse(message);
+    const response = await getGroqResponse(llmMessages);
 
     return NextResponse.json({ message: response });
   } catch (error) {
